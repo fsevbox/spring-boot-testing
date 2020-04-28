@@ -1,0 +1,20 @@
+version: "2"
+
+services:
+  todo:
+    build:
+      context: .
+      dockerfile: docker/todo/Dockerfile
+    ports:
+      - "8080:8080"
+    container_name: todo
+    entrypoint: /wait-for-it.sh localhost:9042 -- java -Djava.security.egd=file:/dev/./urandom -jar app.jar
+    depends_on:
+      - "cassandra"
+    restart: always
+  cassandra:
+    image: 'bitnami/cassandra:latest'
+    volumes:
+      - ./docker/cassandra/initial-seed.cql:/docker-entrypoint-initdb.d/initial-seed.cql
+    ports:
+      - "9042:9042"
